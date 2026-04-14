@@ -6,6 +6,28 @@ from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
 import platform
+import json
+
+def parse_kv_ground_response(response_text, screen_width=1920, screen_height=1080):
+    try:
+        # XML etiketleri arasındaki JSON'u çıkar
+        start = response_text.index("<tool_call>") + len("<tool_call>")
+        end = response_text.index("</tool_call>")
+        json_str = response_text[start:end].strip()
+        json_obj = json.loads(json_str)
+        arguments = json_obj.get("arguments", {})
+        # Reddetme durumunu kontrol et
+        if arguments.get("action") == "refusal":
+            return None, None
+        x_model, y_model = arguments.get("coordinate", [-1, -1])
+        if x_model < 0 or y_model < 0:
+            return None, None
+        # Ekran çözünürlüğüne göre normalizasyon (Örn: 1920x1080)
+        real_x = round((2560 * x_model) / 1000)
+        real_y = round((1440 * y_model) / 1000)
+        return real_x, real_y
+    except (ValueError, json.JSONDecodeError):
+        return None, None
 
 # from operate.models.prompts import USER_QUESTION, get_system_prompt
 from operate.models.prompts import (
