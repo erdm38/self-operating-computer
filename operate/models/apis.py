@@ -106,7 +106,7 @@ def call_gpt_4o(messages):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="local-model",  # LMStudio'da yüklü modelin adı
             messages=messages,
             presence_penalty=1,
             frequency_penalty=1,
@@ -350,7 +350,7 @@ async def call_gpt_4o_with_ocr(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="local-model",  # LMStudio'da yüklü modelin adı
             messages=messages,
         )
 
@@ -461,7 +461,7 @@ async def call_gpt_4_1_with_ocr(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="gpt-4.1",
+            model="local-model",  # LMStudio'da yüklü modelin adı
             messages=messages,
         )
 
@@ -569,7 +569,7 @@ async def call_o1_with_ocr(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="o1",
+            model="local-model",  # LMStudio'da yüklü modelin adı
             messages=messages,
         )
 
@@ -594,10 +594,7 @@ async def call_o1_with_ocr(messages, objective, model):
                     )
                 # Initialize EasyOCR Reader
                 reader = easyocr.Reader(["en"])
-
-                # Read the screenshot
                 result = reader.readtext(screenshot_filename)
-
                 text_element_index = get_text_element(
                     result, text_to_click, screenshot_filename
                 )
@@ -691,7 +688,7 @@ async def call_gpt_4o_labeled(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="local-model",  # LMStudio'da yüklü modelin adı
             messages=messages,
             presence_penalty=1,
             frequency_penalty=1,
@@ -726,7 +723,6 @@ async def call_gpt_4o_labeled(messages, objective, model):
                         "[Self Operating Computer][call_gpt_4_vision_preview_labeled] label",
                         label,
                     )
-
                 coordinates = get_label_coordinates(label, label_coordinates)
                 if config.verbose:
                     print(
@@ -750,7 +746,6 @@ async def call_gpt_4o_labeled(messages, objective, model):
                         f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Failed to get click position in percent. Trying another method {ANSI_RESET}"
                     )
                     return call_gpt_4o(messages)
-
                 x_percent = f"{click_position_percent[0]:.2f}"
                 y_percent = f"{click_position_percent[1]:.2f}"
                 operation["x"] = x_percent
@@ -767,15 +762,13 @@ async def call_gpt_4o_labeled(messages, objective, model):
                         "[Self Operating Computer][call_gpt_4_vision_preview_labeled] .append none click operation",
                         operation,
                     )
-
                 processed_content.append(operation)
-
-            if config.verbose:
-                print(
-                    "[Self Operating Computer][call_gpt_4_vision_preview_labeled] new processed_content",
-                    processed_content,
-                )
-            return processed_content
+        if config.verbose:
+            print(
+                "[Self Operating Computer][call_gpt_4_vision_preview_labeled] new processed_content",
+                processed_content,
+            )
+        return processed_content
 
     except Exception as e:
         print(

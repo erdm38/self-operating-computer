@@ -48,25 +48,14 @@ class Config:
         )
 
     def initialize_openai(self):
+        import openai
         if self.verbose:
-            print("[Config][initialize_openai]")
-
-        if self.openai_api_key:
-            if self.verbose:
-                print("[Config][initialize_openai] using cached openai_api_key")
-            api_key = self.openai_api_key
-        else:
-            if self.verbose:
-                print(
-                    "[Config][initialize_openai] no cached openai_api_key, try to get from env."
-                )
-            api_key = os.getenv("OPENAI_API_KEY")
-
-        client = OpenAI(
-            api_key=api_key,
+            print("[Config][initialize_openai] (LMStudio mode)")
+        # LMStudio local endpoint
+        client = openai.OpenAI(
+            base_url="http://localhost:1234/v1",
+            api_key="lm-studio"  # Lokal sunucuda key'in bir önemi yoktur
         )
-        client.api_key = api_key
-        client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
         return client
 
     def initialize_qwen(self):
