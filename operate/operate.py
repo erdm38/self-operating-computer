@@ -176,12 +176,19 @@ def operate(operations, model):
             operate_detail = content
             operating_system.write(content)
         elif operate_type == "click":
-            x = operation.get("x")
-            y = operation.get("y")
-            click_detail = {"x": x, "y": y}
-            operate_detail = click_detail
+            # LLM'den gelen ham metin cevabını al
+            llm_response = operation.get("raw_response", None) or json.dumps(operation)
+            click_x, click_y = parse_kv_ground_response(llm_response)
 
-            operating_system.mouse(click_detail)
+            if click_x is not None and click_y is not None:
+                import pyautogui
+                pyautogui.moveTo(click_x, click_y, duration=0.2)
+                pyautogui.click()
+                print(f"Başarılı: [{click_x}, {click_y}] koordinatlarına tıklandı.")
+                operate_detail = {"x": click_x, "y": click_y}
+            else:
+                print("Ajan uyarı verdi: Hedef ekranda bulunamadı veya çıktı formatı hatalı.")
+                operate_detail = None
         elif operate_type == "done":
             summary = operation.get("summary")
 
